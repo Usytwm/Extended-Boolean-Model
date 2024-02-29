@@ -1,25 +1,6 @@
 # Cargando las bibliotecas
 import ir_datasets
-import nltk
-import spacy as sp
-import gensim
-from wordcloud import WordCloud
-import matplotlib.pyplot as plt
 from tools.preprocess import Preprocess
-
-# Calcular IDF solo para términos de consulta
-from sklearn.feature_extraction.text import CountVectorizer
-import numpy as np
-
-
-# Cargar el diccionario de Gensim
-from gensim.corpora import Dictionary
-
-
-import ir_datasets
-import nltk
-import spacy as sp
-import gensim
 from gensim.corpora import Dictionary
 import json
 from Models.Boolean_Extended_Model.boolean_extended_model import ExtendedBooleanModel
@@ -42,7 +23,7 @@ except FileNotFoundError:
 
     dictionary.save("src/proyect-code/Data/dictionary.gensim")
 
-terminos_consulta = ["experiment", "concept", "physical", "theory"]
+terminos_consulta = "experiment concept physical theory"
 
 boolean_extended_model = ExtendedBooleanModel(tokenized_docs, terminos_consulta)
 boolean_extended_model.process()

@@ -3,15 +3,24 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 
 
 class ExtendedBooleanModel:
-    def __init__(self, tokenized_docs, terms_of_interest):
+    def __init__(self, tokenized_docs, query):
         self.tokenized_docs = tokenized_docs
-        self.terms_of_interest = terms_of_interest
+        self.query = query
+        self.terms_of_interest = self.process_query(query)
         self.vectorizer = CountVectorizer(vocabulary=self.terms_of_interest)
         self.transformer = TfidfTransformer(smooth_idf=True, use_idf=True)
         self.tf = None
         self.idf = None
         self.max_idf = None
         self.weights = None
+
+    def process_query(self, query):
+        """
+        Procesa la consulta para obtener los términos de interés.
+        """
+        # Separar la consulta en términos usando espacios y eliminar espacios en blanco extra
+        terms = query.split()
+        return [term.strip() for term in terms if term.strip()]
 
     def vectorize_documents(self):
         """Vectorize the tokenized documents using CountVectorizer."""
