@@ -12,7 +12,7 @@ try:
         # Reconstruir los documentos a partir de las listas de palabras
     dictionary = Dictionary.load("src/proyect-code/Data/dictionary.gensim")
 except FileNotFoundError:
-    dataset = ir_datasets.load("cranfield")
+    dataset = ir_datasets.load("beir/arguana")
     documents = [doc.text for doc in dataset.docs_iter()]
     preprocess = Preprocess()
     tokenized_docs, dictionary, vocabulary, vector_repr, pos_tags = (
@@ -23,17 +23,16 @@ except FileNotFoundError:
 
     dictionary.save("src/proyect-code/Data/dictionary.gensim")
 
-terminos_consulta = "experiment concept physical theory"
+terminos_consulta = "vegetarian animal culito"
 
 boolean_extended_model = ExtendedBooleanModel(tokenized_docs, terminos_consulta)
 boolean_extended_model.process()
 
-value = 1393
+value = 0
 
 # Calcular la similitud OR y AND para el primer documento, como ejemplo
-doc_weights = boolean_extended_model.get_document_weights(
-    value
-)  # Obtener los pesos del primer documento
+doc_weights = boolean_extended_model.get_document_weights(value)
+print(doc_weights)
 sim_or_value = boolean_extended_model.sim_or(doc_weights)
 sim_and_value = boolean_extended_model.sim_and(doc_weights)
 
