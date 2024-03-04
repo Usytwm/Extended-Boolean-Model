@@ -11,7 +11,7 @@ class ExtendedBooleanModel:
         self.tokenized_docs = tokenized_docs
         self.query = query
         self.terms_of_interest = self.process_query(query)
-        self.vectorizer1 = TfidfVectorizer(vocabulary=self.terms_of_interest)
+        self.vectorizer_Tfidf = TfidfVectorizer(vocabulary=self.terms_of_interest)
         self.vectorizer = CountVectorizer(vocabulary=self.terms_of_interest)
         self.transformer = TfidfTransformer(smooth_idf=True, use_idf=True)
         self.tf = None
@@ -63,6 +63,22 @@ class ExtendedBooleanModel:
             np.sum(np.power(1 - document_weights, p)) / len(document_weights), 1 / p
         )
 
+    def all_documents_relevance_or(self, p=2):
+        """Calcula la relevancia de todos los documentos usando la operación OR."""
+        relevances = [
+            self.sim_or(self.get_document_weights(i), p)
+            for i in range(len(self.tokenized_docs))
+        ]
+        return relevances
+
+    def all_documents_relevance_and(self, p=2):
+        """Calcula la relevancia de todos los documentos usando la operación AND."""
+        relevances = [
+            self.sim_and(self.get_document_weights(i), p)
+            for i in range(len(self.tokenized_docs))
+        ]
+        return relevances
+
     def process(self):
         """Process the documents to calculate the TF-IDF weights."""
         self.vectorize_documents()
@@ -83,7 +99,7 @@ class ExtendedBooleanModel:
         # Convierte la lista de documentos tokenizados en una lista de strings separados por espacios.
         documents = [doc for doc in self.tokenized_docs]
         # Ajusta el vectorizador a los documentos y transforma los documentos en una matriz TF-IDF.
-        tfidf_matrix = self.vectorizer1.fit_transform(documents)
+        tfidf_matrix = self.vectorizer_Tfidf.fit_transform(documents)
         # Convierte la matriz TF-IDF sparse a una matriz densa y la almacena en self.weights.
         self.weights = tfidf_matrix.toarray()
 
