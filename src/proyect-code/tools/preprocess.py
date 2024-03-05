@@ -2,6 +2,7 @@ import nltk
 import spacy
 import gensim
 
+
 nlp = spacy.load("en_core_web_sm")
 
 #Tokenizamos
