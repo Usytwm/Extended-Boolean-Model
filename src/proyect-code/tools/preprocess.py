@@ -31,7 +31,7 @@ def morphological_reduction_spacy(tokenized_docs, use_lemmatization=True):
 def preprocess_documents(documents, is_query):  
     # Tokenización
     tokenized_docs = tokenization_spacy(documents)
-    print("HI")
+
     # Eliminación de ruido (solo tokens alfabéticos)
     tokenized_docs = remove_noise_spacy(tokenized_docs)
     print(tokenized_docs)
