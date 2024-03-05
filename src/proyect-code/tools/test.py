@@ -1,3 +1,4 @@
-import process
+from process import corpus
 
-_corpus = process.corpus(None,1)
+_corpus = corpus(data_name=None, docs_num=5)
+print(_corpus.docs)

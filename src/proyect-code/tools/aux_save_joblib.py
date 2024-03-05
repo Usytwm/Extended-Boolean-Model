@@ -1,7 +1,7 @@
 import time
 import glob
 import pandas as pd
-import preproces
+import preprocess
 from sklearn.feature_extraction.text import TfidfVectorizer
 import joblib
 
@@ -10,7 +10,7 @@ def save_info(docs, docs_num, corpus_name):
     documents = list(docs)
 
     # Preprocesamiento de los documentos
-    preprocessed_docs = preproces.preprocess_documents(documents,False)
+    preprocessed_docs = preprocess.preprocess_documents(documents,False)
 
     # Convertir cada lista de tokens en una cadena única
     preprocessed_docs = [' '.join(doc) for doc in preprocessed_docs]
