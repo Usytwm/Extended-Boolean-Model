@@ -4,7 +4,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import preprocess
 from joblib import dump
 
-def load_info(data,docs_num):
+def _load(data,docs_num):
     data_name = data
     # Cargar un conjunto de datos específico
     dataset = ir_datasets.load(data_name)

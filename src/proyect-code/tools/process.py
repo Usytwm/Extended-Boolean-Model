@@ -1,13 +1,13 @@
 import ir_datasets
 from aux_save_joblib import save_info
-from aux_load_joblib import load_info
 from sklearn.feature_extraction.text import TfidfVectorizer
 import preprocess
 from joblib import load
+import aux_load_joblib
 
 
 class corpus:
-    def __init__(self, data_name, docs_num):
+    def init(self, data_name, docs_num):
         loaded_data = ''
         if data_name == "":
             data_name = 'cranfield'
@@ -15,7 +15,7 @@ class corpus:
             data_name = loaded_data['data_name']
             
         else:
-            load_info(data_name,docs_num)
+            aux_load_joblib._load(data_name,docs_num)
             loaded_data = load(f'data_{data_name}.joblib')
 
         # Cargar los datos desde el archivo
@@ -38,4 +38,3 @@ class corpus:
         # Iterar sobre las relaciones de relevancia (QRELs) para una consulta específica
         for query_id, doc_id, relevance in self.qrels:
             print(f"Query ID: {query_id}, Doc ID: {doc_id}, Relevance: {relevance}")
-            
