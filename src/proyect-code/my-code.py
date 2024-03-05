@@ -1,5 +1,7 @@
 # Cargando las bibliotecas
 import ir_datasets
+from sympy import sympify, to_dnf
+import sympy
 from tools.preprocess import Preprocess
 from gensim.corpora import Dictionary
 import json
@@ -13,11 +15,6 @@ for query_id, doc_id, relevance, iteration in dataset.qrels_iter():
         dictionary[query_id] = [doc_id]
     else:
         dictionary[query_id].append(doc_id)
-
-# for query_id, doc_ids in dictionary.items():
-#     if len(doc_ids) > 2:
-#         print(query_id)
-# print(dictionary)
 
 
 def relevant_documents(query_id: str):
@@ -81,4 +78,59 @@ def recovered_documents_sri(query):
     return enumerate(relevance_scores)
 
 
-print(recovered_documents_sri(terminos_consulta))
+# print(recovered_documents_sri(terminos_consulta))
+def query_to_dnf(query):
+
+    processed_query = query
+    override_and = ("and", "AND", "&&", "&")
+    override_or = ("or", "OR", "||", "|")
+    override_not = ("not", "NOT", "~")
+    override_notp = ("(NOT", "(not", "~")
+
+    processed_query = [token for token in processed_query.split(" ")]
+
+    newFND = " "
+    for i, item in enumerate(processed_query):
+        if item in override_and:
+            processed_query[i] = override_and[-1]
+            newFND += " & "
+        elif item in override_or:
+            processed_query[i] = override_and[-1]
+            newFND += " | "
+        elif item in override_not:
+            processed_query[i] = override_not[-1]
+            newFND += "~"
+        elif item in override_notp:
+            processed_query[i] = override_notp[-1]
+            newFND += "(~"
+
+        else:
+            newFND += processed_query[i]
+            if (
+                i < len(processed_query) - 1
+                and (not (processed_query[i + 1] in override_and))
+                and (not (processed_query[i + 1] in override_or))
+                and (not (processed_query[i + 1] in override_not))
+            ):
+                newFND += " & "
+
+    print("antes ", newFND)
+    # Convertir a expresión sympy y aplicar to_dnf
+    query_expr = sympify(newFND, evaluate=False)
+    query_dnf = to_dnf(query_expr, simplify=True)
+
+    return query_dnf
+
+
+def get_literals_from_dnf(dnf):
+    literals = []
+    for disjunct in dnf.args:
+        if isinstance(disjunct, sympy.Not):
+            literals.append(
+                f"~{str(disjunct.args[0])}"
+            )  # Include the negation symbol (~)
+        else:
+            for literal in disjunct.args:
+                # Access the literal directly without using 'as_independent'
+                literals.append(str(literal))
+    return list(set(literals))
