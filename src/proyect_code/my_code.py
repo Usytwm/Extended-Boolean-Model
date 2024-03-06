@@ -3,6 +3,7 @@ import ir_datasets
 from sympy import sympify, to_dnf
 from tools.metrics import calculate_metrics,precision, recall
 from tools.preprocess import Preprocess
+from tools.prepro import preprocess_documents
 from gensim.corpora import Dictionary
 from tools.preprocess_to_query import preprocess_query
 import json
@@ -10,7 +11,7 @@ from Models.MRI import boolean_MRI
 import time
 
 dataset = ir_datasets.load("cranfield")
-terminos_consulta = "text  material properties of photoelastic materials"
+terminos_consulta = "text  what application has the linear theory design of curved wings"
 
 dictionary = {}
 
@@ -58,10 +59,10 @@ def recovered_documents_sri(query):
     start = time.time()
     # Intenta cargar documentos preprocesados y el diccionario
     try:
-        with open("src/proyect-code/Data/preprocessed_docs.json", "r") as f:
+        with open("src/proyect_code/Data/preprocessed_docs.json", "r") as f:
             tokenized_docs = json.load(f)
             # Reconstruir los documentos a partir de las listas de palabras
-        dictionary = Dictionary.load("src/proyect-code/Data/dictionary.gensim")
+        dictionary = Dictionary.load("src/proyect_code/Data/dictionary.gensim")
     except FileNotFoundError:
 
         documents = [doc.text for doc in dataset.docs_iter()]
@@ -69,22 +70,22 @@ def recovered_documents_sri(query):
         tokenized_docs, dictionary, vocabulary, vector_repr, pos_tags = (
             preprocess.preprocess_documents(documents)
         )
-        with open("src/proyect-code/Data/preprocessed_docs.json", "w") as f:
+        with open("src/proyect_code/Data/preprocessed_docs.json", "w") as f:
             json.dump(tokenized_docs, f)
 
-        dictionary.save("src/proyect-code/Data/dictionary.gensim")
+        dictionary.save("src/proyect_code/Data/dictionary.gensim")
 
     
-    pre_query = preprocess_query(query)
+    pre_query = preprocess_documents(query, True)
     print(pre_query)
     mri = boolean_MRI(tokenized_docs, pre_query)
     mri.process_TfidfVectorizer()
-    return mri.similarity_boolean_standart()
-    
+    return mri.all_documents_relevance_and()
+
+
 rd = recovered_documents_sri(terminos_consulta)
 print("rd")
-#rd = list(rd.keys())
-rr = relevant_documents(29)
+rr = relevant_documents(53)
 
 print(calculate_metrics(rd,rr))
 #print(precision(ra,rr))
