@@ -82,9 +82,7 @@ def recovered_documents_sri(query):
     mri = boolean_MRI(tokenized_docs, pre_query)
     mri.process_TfidfVectorizer()
     return mri.similarity_boolean_extended()
-    end = time.time()
-    print("time ", end-start," start: ", start, " end: ", end)
-
+    
 rd = recovered_documents_sri(terminos_consulta)
 ra = list(rd.keys())
 rr = relevant_documents(1)
