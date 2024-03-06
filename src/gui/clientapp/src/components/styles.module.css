@@ -1,0 +1,54 @@
+.homecontainer {
+  display: flex;
+  justify-content: space-between;
+}
+
+.leftpanel {
+  display: flex;
+  flex-direction: column;
+  width: 50%; /* Ajusta esto según necesites */
+}
+
+.rightpanel {
+  display: flex;
+  flex-direction: column;
+  width: 50%; /* Ajusta esto según necesites */
+}
+/* styles.module.css */
+.homecontainer {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px; /* Añade un margen alrededor del contenedor principal */
+  gap: 20px; /* Espacio entre los componentes principales */
+  min-height: 90vh;
+}
+
+.leftpanel,
+.rightpanel {
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Espacio entre los componentes dentro de cada panel */
+  margin: 10px; /* Margen interno para cada panel */
+  min-height: 90vh;
+}
+
+.card {
+  padding: 10px; /* Espacio interno para los componentes Card */
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); /* Sombra para dar profundidad */
+  border-radius: 5px; /* Bordes redondeados para los Cards */
+  width: auto; /* O ajusta según sea necesario */
+  flex-grow: 1;
+}
+
+.cardContentCentered {
+  display: flex;
+  justify-content: center; /* Centra horizontalmente */
+  align-items: center; /* Centra verticalmente */
+  height: 100%; /* Ocupa todo el alto del contenedor */
+}
+
+.select {
+  margin-bottom: 15px; /* Espacio debajo del Select */
+}
+
+/* Asegúrate de aplicar estas clases a tus componentes en React */
