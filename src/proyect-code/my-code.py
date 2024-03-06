@@ -1,7 +1,7 @@
 # Cargando las bibliotecas
 import ir_datasets
 from sympy import sympify, to_dnf
-from tools.metrics import calculate_metrics,precision, recall
+from tools.metrics import calculate_metrics, precision, recall
 from tools.preprocess import Preprocess
 from gensim.corpora import Dictionary
 from tools.preprocess_to_query import preprocess_query
@@ -76,14 +76,14 @@ def recovered_documents_sri(query):
 
         dictionary.save("src/proyect-code/Data/dictionary.gensim")
 
-    
     pre_query = preprocess_query(query)
     print(pre_query)
     mri = boolean_MRI(tokenized_docs, pre_query)
     mri.process_TfidfVectorizer()
     return mri.similarity_boolean_extended()
-    
+
+
 rd = recovered_documents_sri(terminos_consulta)
 ra = list(rd.keys())
 rr = relevant_documents(1)
-print(calculate_metrics(ra,rr))
+print(calculate_metrics(ra, rr))
