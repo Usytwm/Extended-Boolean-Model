@@ -1,11 +1,13 @@
 # Cargando las bibliotecas
 from sympy import sympify, to_dnf
-import sympy
 from tools.preprocess import Preprocess
 from gensim.corpora import Dictionary
 import json
-from Models.Boolean_Extended_Model.boolean_extended_model import ExtendedBooleanModel
+
+# from Models.Boolean_Extended_Model.boolean_extended_model import ExtendedBooleanModel
 import ir_datasets
+from tools.preprocess_to_query import preprocess_query
+from Models.MRI import boolean_MRI
 
 
 class DatasetData:
@@ -19,7 +21,7 @@ class DatasetData:
         """Carga todos los documentos en una lista."""
         documents = []
         for doc in self.dataset.docs_iter():
-            documents.append({"id": doc.doc_id, "text": doc.text})
+            documents.append({"id": doc.doc_id, "title": doc.text})
         return documents
 
     def load_queries(self):
@@ -43,32 +45,33 @@ class DatasetData:
         return query_responses
 
 
-# # Uso
-# cranfield_data = DatasetData()
+# Uso
+cranfield_data = DatasetData()
 
-# terminos_consulta = "experimental and (equation or culito)"
-# dictionary = {}
-# for query_id, doc_id, relevance, iteration in cranfield_data.dataset.qrels_iter():
-#     if query_id not in dictionary:
-#         dictionary[query_id] = [doc_id]
-#     else:
-#         dictionary[query_id].append(doc_id)
-
-
-# # Para ver los documentos
-# print("Documentos:", cranfield_data.documents[:5])  # Imprime los primeros 5 documentos
-
-# # Para ver las consultas
-# print("Consultas:", cranfield_data.queries[:5])  # Imprime las primeras 5 consultas
-
-# # Para ver las respuestas de una consulta específica
-# consulta_especifica_id = (
-#     "1"  # Asegúrate de usar un ID de consulta válido que exista en el dataset
-# )
-# print("Respuestas para la consulta:", cranfield_data.load_query_responses)
+dictionary = {}
+for query_id, doc_id, relevance, iteration in cranfield_data.dataset.qrels_iter():
+    if relevance != -1:
+        if query_id not in dictionary:
+            dictionary[query_id] = [doc_id]
+        else:
+            dictionary[query_id].append(doc_id)
 
 
-def recovered_documents_sri(query, datasets):
+def relevant_documents(query_id: str):
+    """
+    Devuelve documentos relevantes dada una consulta y el identificador de la consulta.
+
+    Args:
+      - query_id (str) : Identificador de la consulta.
+
+    Return:
+      list<str>
+    """
+    result = dictionary[query_id]
+    return result
+
+
+def recovered_documents_sri(query):
     """
     Determines the set of documents recovered. The most important one is in position zero and thus the relevance decreases.
 
@@ -97,36 +100,47 @@ def recovered_documents_sri(query, datasets):
 
         dictionary.save("src/proyect_code/Data/dictionary.gensim")
 
-    boolean_extended_model = ExtendedBooleanModel(tokenized_docs, query)
-    boolean_extended_model.process_TfidfVectorizer()
+    pre_query = preprocess_query(query)
+    print(pre_query)
+    mri = boolean_MRI(tokenized_docs, pre_query)
+    # boolean_extended_model = ExtendedBooleanModel(tokenized_docs, query)
+    mri.process_TfidfVectorizer()
 
-    x = boolean_extended_model.sim()
+    x = mri.similarity_boolean_extended()
     return x
 
 
-def get_queries(dataset):
-    # Lista para almacenar las consultas
-    queries = []
-
-    # Iterar sobre cada consulta en el dataset
-    for query in dataset.queries_iter():
-        # Cada objeto query generalmente tiene un 'query_id' y un 'text'
-        # La estructura exacta puede variar dependiendo del dataset
-        query_dict = {"id": int(query.query_id), "name": query.text}
-        queries.append(query_dict)
-
-    return queries
-
-
-def get_documents(query: str):
+def recovered_documents_sri_standar(query):
     """
-    Returns relevant documents given a query and the query
+    Determina el conjunto de documentos recuperados. El más importante se encuentra en la posición cero y, por lo tanto, la relevancia disminuye.
 
     Args:
-    - query_id (str) : Query identifier.
+    - query (str): Texto de la consulta.
 
     Return:
-    list<str>
+    list: Lista de identificadores de documentos y puntuación.
 
     """
-    return recovered_documents_sri(query)
+    # Intenta cargar documentos preprocesados y el diccionario
+    try:
+        with open("src/proyect_code/Data/preprocessed_docs.json", "r") as f:
+            tokenized_docs = json.load(f)
+            # Reconstruir los documentos a partir de las listas de palabras
+        dictionary = Dictionary.load("src/proyect_code/Data/dictionary.gensim")
+    except FileNotFoundError:
+
+        documents = [doc.text for doc in cranfield_data.dataset.docs_iter()]
+        preprocess = Preprocess()
+        tokenized_docs, dictionary, vocabulary, vector_repr, pos_tags = (
+            preprocess.preprocess_documents(documents)
+        )
+        with open("src/proyect_code/Data/preprocessed_docs.json", "w") as f:
+            json.dump(tokenized_docs, f)
+
+        dictionary.save("src/proyect_code/Data/dictionary.gensim")
+
+    pre_query = preprocess_query(query)
+    print(pre_query)
+    mri = boolean_MRI(tokenized_docs, pre_query)
+    mri.process_TfidfVectorizer()
+    return mri.similarity_boolean_standart()

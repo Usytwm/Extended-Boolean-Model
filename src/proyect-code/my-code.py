@@ -32,18 +32,11 @@ def relevant_documents(query_id: str):
       list<str>
 
     """
-    for queryt_id, query_text in dataset.queries_iter():
-        if queryt_id == query_id:
-            break
-
-    return (
-        [
-            doc_id
-            for (queryt_id, doc_id, relevance, iteration) in dataset.qrels_iter()
-            if queryt_id == query_id
-        ],
-        query_text,
-    )
+    return [
+        item[1]
+        for item in dataset.qrels_iter()
+        if (int(item[0]) == int(query_id) and item[2] != -1)
+    ]
 
 
 def recovered_documents_sri(query):
