@@ -11,13 +11,14 @@ CORS(app)
 
 @app.route("/api/allqueries", methods=["GET"])
 def get_all_queries():
-    data = cd.get_queries()
+    data = data.queries
     return jsonify(data)
 
 
 @app.route("/api/search/<query>", methods=["GET"])
 def search_query(query):
     documents = cd.get_documents(query)
+
     return jsonify(documents)
 
 

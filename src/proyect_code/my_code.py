@@ -43,32 +43,32 @@ class DatasetData:
         return query_responses
 
 
-# Uso
-cranfield_data = DatasetData()
+# # Uso
+# cranfield_data = DatasetData()
 
-terminos_consulta = "experimental and (equation or culito)"
-dictionary = {}
-for query_id, doc_id, relevance, iteration in cranfield_data.dataset.qrels_iter():
-    if query_id not in dictionary:
-        dictionary[query_id] = [doc_id]
-    else:
-        dictionary[query_id].append(doc_id)
-
-
-# Para ver los documentos
-print("Documentos:", cranfield_data.documents[:5])  # Imprime los primeros 5 documentos
-
-# Para ver las consultas
-print("Consultas:", cranfield_data.queries[:5])  # Imprime las primeras 5 consultas
-
-# Para ver las respuestas de una consulta específica
-consulta_especifica_id = (
-    "1"  # Asegúrate de usar un ID de consulta válido que exista en el dataset
-)
-print("Respuestas para la consulta:", cranfield_data.load_query_responses)
+# terminos_consulta = "experimental and (equation or culito)"
+# dictionary = {}
+# for query_id, doc_id, relevance, iteration in cranfield_data.dataset.qrels_iter():
+#     if query_id not in dictionary:
+#         dictionary[query_id] = [doc_id]
+#     else:
+#         dictionary[query_id].append(doc_id)
 
 
-def recovered_documents_sri(query):
+# # Para ver los documentos
+# print("Documentos:", cranfield_data.documents[:5])  # Imprime los primeros 5 documentos
+
+# # Para ver las consultas
+# print("Consultas:", cranfield_data.queries[:5])  # Imprime las primeras 5 consultas
+
+# # Para ver las respuestas de una consulta específica
+# consulta_especifica_id = (
+#     "1"  # Asegúrate de usar un ID de consulta válido que exista en el dataset
+# )
+# print("Respuestas para la consulta:", cranfield_data.load_query_responses)
+
+
+def recovered_documents_sri(query, datasets):
     """
     Determines the set of documents recovered. The most important one is in position zero and thus the relevance decreases.
 
@@ -104,7 +104,7 @@ def recovered_documents_sri(query):
     return x
 
 
-def get_queries(dataset=cranfield_data.dataset):
+def get_queries(dataset):
     # Lista para almacenar las consultas
     queries = []
 

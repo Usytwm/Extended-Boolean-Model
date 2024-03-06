@@ -14,13 +14,13 @@ class ExtendedBooleanModel:
         self.query = query
         self.terms_of_interest = self.process_query(query)
         # self.vectorizer_Tfidf = TfidfVectorizer(vocabulary=self.terms_of_interest)
-        self.vectorizer = CountVectorizer(vocabulary=self.terms_of_interest)
+        self.vectorizer = CountVectorizer(vocabulary=set(self.terms_of_interest))
         self.transformer = TfidfTransformer(smooth_idf=True, use_idf=True)
         self.query_dnf = self.query_to_dnf(self.query)
         self.terms_of_interest_TfidfVectorizer = self.get_literals_from_dnf(
             self.query_dnf
         )
-        self.vectorizer_Tfidf = TfidfVectorizer(vocabulary=self.terms_of_interest)
+        self.vectorizer_Tfidf = TfidfVectorizer(vocabulary=set(self.terms_of_interest))
         self.process_TfidfVectorizer()  # Asegura que self.weights se calcule primero
 
         self.tf = None
@@ -161,10 +161,13 @@ class ExtendedBooleanModel:
                     and (not (processed_query[i + 1] in override_not))
                 ):
                     newFND += " & "
-
-        query_expr = sympy.sympify(newFND, evaluate=False)
-        query_dnf = sympy.to_dnf(query_expr, simplify=True)
-
+        try:
+            query_expr = sympy.sympify(newFND, evaluate=False)
+        except:
+            simb = sympy.symbols(newFND)
+            query_expr = sympy.And(*simb)
+            query_expr = sympy.sympify(query_expr, evaluate=False)
+        query_dnf = sympy.to_dnf(query_expr, simplify=True, force=True)
         return query_dnf
 
     def get_literals_from_dnf(self, dnf):
