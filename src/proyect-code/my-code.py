@@ -10,7 +10,7 @@ from Models.MRI import boolean_MRI
 import time
 
 dataset = ir_datasets.load("cranfield")
-terminos_consulta = "what similarity laws must be obeyed when constructing aeroelastic models of heated high speed aircraft"
+terminos_consulta = "text  material properties of photoelastic materials"
 
 dictionary = {}
 
@@ -30,20 +30,18 @@ def relevant_documents(query_id: str):
 
     Return:
       list<str>
-
     """
-    for queryt_id, query_text in dataset.queries_iter():
-        if queryt_id == query_id:
-            break
-
-    return (
-        [
-            doc_id
-            for (queryt_id, doc_id, relevance, iteration) in dataset.qrels_iter()
-            if queryt_id == query_id
-        ],
-        query_text,
-    )
+    #global dataset
+    #X = 0
+    #for qrel in dataset.qrels_iter():
+    #    print("Query_id :", query_id)
+    #    if int(qrel[0]) == int(query_id):
+    #        print("relevancia :", qrel[3])
+    #        X+=1
+#
+    #
+    #print(X)
+    return [item[1] for item in dataset.qrels_iter() if (int(item[0]) == int(query_id) and item[2] != -1)]
 
 
 def recovered_documents_sri(query):
@@ -81,9 +79,14 @@ def recovered_documents_sri(query):
     print(pre_query)
     mri = boolean_MRI(tokenized_docs, pre_query)
     mri.process_TfidfVectorizer()
-    return mri.similarity_boolean_extended()
+    return mri.similarity_boolean_standart()
     
 rd = recovered_documents_sri(terminos_consulta)
-ra = list(rd.keys())
-rr = relevant_documents(1)
-print(calculate_metrics(ra,rr))
+print("rd")
+#rd = list(rd.keys())
+rr = relevant_documents(29)
+
+print(calculate_metrics(rd,rr))
+#print(precision(ra,rr))
+
+#print(calculate_metrics(ra,rr))
