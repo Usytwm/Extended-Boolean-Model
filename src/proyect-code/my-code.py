@@ -1,15 +1,19 @@
 # Cargando las bibliotecas
 import ir_datasets
 from sympy import sympify, to_dnf
-import sympy
+from tools.metrics import calculate_metrics,precision, recall
 from tools.preprocess import Preprocess
 from gensim.corpora import Dictionary
+from tools.preprocess_to_query import preprocess_query
 import json
-from Models.Boolean_Extended_Model.boolean_extended_model import ExtendedBooleanModel
+from Models.MRI import boolean_MRI
+import time
 
 dataset = ir_datasets.load("cranfield")
-terminos_consulta = "experimental and (equation or culito)"
+terminos_consulta = "what similarity laws must be obeyed when constructing aeroelastic models of heated high speed aircraft"
+
 dictionary = {}
+
 for query_id, doc_id, relevance, iteration in dataset.qrels_iter():
     if query_id not in dictionary:
         dictionary[query_id] = [doc_id]
@@ -19,10 +23,10 @@ for query_id, doc_id, relevance, iteration in dataset.qrels_iter():
 
 def relevant_documents(query_id: str):
     """
-    Returns relevant documents given a query and the query
+    Devuelve documentos relevantes dada una consulta y el identificador de la consulta.
 
     Args:
-      - query_id (str) : Query identifier.
+      - query_id (str) : Identificador de la consulta.
 
     Return:
       list<str>
@@ -44,15 +48,16 @@ def relevant_documents(query_id: str):
 
 def recovered_documents_sri(query):
     """
-    Determines the set of documents recovered. The most important one is in position zero and thus the relevance decreases.
+    Determina el conjunto de documentos recuperados. El más importante se encuentra en la posición cero y, por lo tanto, la relevancia disminuye.
 
     Args:
-      - query (str): Query text.
+      - query (str): Texto de la consulta.
 
     Return:
-      list: List of document identifiers and score
+      list: Lista de identificadores de documentos y puntuación.
 
     """
+    start = time.time()
     # Intenta cargar documentos preprocesados y el diccionario
     try:
         with open("src/proyect-code/Data/preprocessed_docs.json", "r") as f:
@@ -71,64 +76,16 @@ def recovered_documents_sri(query):
 
         dictionary.save("src/proyect-code/Data/dictionary.gensim")
 
-    boolean_extended_model = ExtendedBooleanModel(tokenized_docs, query)
-    boolean_extended_model.process_TfidfVectorizer()
-    print(boolean_extended_model.sim())
+    
+    pre_query = preprocess_query(query)
+    print(pre_query)
+    mri = boolean_MRI(tokenized_docs, pre_query)
+    mri.process_TfidfVectorizer()
+    return mri.similarity_boolean_extended()
+    end = time.time()
+    print("time ", end-start," start: ", start, " end: ", end)
 
-
-print(recovered_documents_sri(terminos_consulta))
-# def query_to_dnf(query):
-
-#     processed_query = query
-#     override_and = ("and", "AND", "&&", "&")
-#     override_or = ("or", "OR", "||", "|")
-#     override_not = ("not", "NOT", "~")
-#     override_notp = ("(NOT", "(not", "~")
-
-#     processed_query = [token for token in processed_query.split(" ")]
-
-#     newFND = " "
-#     for i, item in enumerate(processed_query):
-#         if item in override_and:
-#             processed_query[i] = override_and[-1]
-#             newFND += " & "
-#         elif item in override_or:
-#             processed_query[i] = override_and[-1]
-#             newFND += " | "
-#         elif item in override_not:
-#             processed_query[i] = override_not[-1]
-#             newFND += "~"
-#         elif item in override_notp:
-#             processed_query[i] = override_notp[-1]
-#             newFND += "(~"
-
-#         else:
-#             newFND += processed_query[i]
-#             if (
-#                 i < len(processed_query) - 1
-#                 and (not (processed_query[i + 1] in override_and))
-#                 and (not (processed_query[i + 1] in override_or))
-#                 and (not (processed_query[i + 1] in override_not))
-#             ):
-#                 newFND += " & "
-
-#     print("antes ", newFND)
-#     # Convertir a expresión sympy y aplicar to_dnf
-#     query_expr = sympify(newFND, evaluate=False)
-#     query_dnf = to_dnf(query_expr, simplify=True)
-
-#     return query_dnf
-
-
-# def get_literals_from_dnf(dnf):
-#     literals = []
-#     for disjunct in dnf.args:
-#         if isinstance(disjunct, sympy.Not):
-#             literals.append(
-#                 f"~{str(disjunct.args[0])}"
-#             )  # Include the negation symbol (~)
-#         else:
-#             for literal in disjunct.args:
-#                 # Access the literal directly without using 'as_independent'
-#                 literals.append(str(literal))
-#     return list(set(literals))
+rd = recovered_documents_sri(terminos_consulta)
+ra = list(rd.keys())
+rr = relevant_documents(1)
+print(calculate_metrics(ra,rr))

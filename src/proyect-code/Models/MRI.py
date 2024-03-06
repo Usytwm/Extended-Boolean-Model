@@ -3,10 +3,11 @@ import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import normalize
+from sympy import (sympify, to_dnf, symbols, And)
 import sympy
 
 
-class ExtendedBooleanModel:
+class boolean_MRI:
     def __init__(self, tokenized_docs, query):
         self.tokenized_docs = tokenized_docs
         self.weights = None
@@ -27,6 +28,7 @@ class ExtendedBooleanModel:
         self.idf = None
         self.max_idf = None
         self.weights = None
+
 
     def process_query1(self, query):
         """
@@ -76,13 +78,13 @@ class ExtendedBooleanModel:
         self.weights = normalize(self.weights, norm="l2")
 
     def sim_or(self, document_weights, p=2):
-        """Calculate similarity using OR operation."""
+        """Calculate similarity_boolean_standart using OR operation."""
         return np.power(
             np.sum(np.power(document_weights, p)) / len(document_weights), 1 / p
         )
 
     def sim_and(self, document_weights, p=2):
-        """Calculate similarity using AND operation."""
+        """Calculate similarity_boolean_standart using AND operation."""
         return 1 - np.power(
             np.sum(np.power(1 - document_weights, p)) / len(document_weights), 1 / p
         )
@@ -137,7 +139,7 @@ class ExtendedBooleanModel:
 
         processed_query = [token for token in processed_query.split(" ")]
 
-        newFND = " "
+        newFND = ""
         for i, item in enumerate(processed_query):
             if item in override_and:
                 processed_query[i] = override_and[-1]
@@ -161,10 +163,14 @@ class ExtendedBooleanModel:
                     and (not (processed_query[i + 1] in override_not))
                 ):
                     newFND += " & "
-
-        query_expr = sympy.sympify(newFND, evaluate=False)
-        query_dnf = sympy.to_dnf(query_expr, simplify=True)
-
+        print(newFND)
+        try:
+            query_expr = sympify(newFND, evaluate=False)   
+        except:
+            simb = symbols(newFND)
+            query_expr = And(*simb)
+            query_expr = sympify(query_expr,evaluate=False)
+        query_dnf = to_dnf(query_expr, simplify=True,force=True)
         return query_dnf
 
     def get_literals_from_dnf(self, dnf):
@@ -180,7 +186,35 @@ class ExtendedBooleanModel:
                     literals.append(str(literal))
         return list(set(literals))
 
-    def sim(self):
+    def similarity_boolean_standart(self):
+        # Convert tokenized_docs to a list of sets for efficient operations
+        doc_term_sets = self.tokenized_docs
+
+        matching_documents = []
+        for doc_i, doc_terms in enumerate(doc_term_sets):
+            # Initialize a flag to check if the document matches the query
+            all_match = False
+            for q_ce in self.query_dnf.args:
+                # Check if the query component is a subset of the document terms
+                try:
+                    for elem in str(q_ce).split('&'):
+                        if elem not in doc_terms:
+                            # If any component of the query matches, the document is a match
+                            break
+                    else:
+                        all_match = True
+                except:
+                    if str(q_ce) in doc_terms:
+                        all_match = True
+                if all_match:
+                    matching_documents.append(doc_i)
+                    break
+
+            # If the document matches all components of the query, add it to the list
+
+        return matching_documents
+    
+    def similarity_boolean_extended(self):
         """
         Calcula la similitud entre la consulta DNF y los documentos, basándose en los pesos TF-IDF.
         """

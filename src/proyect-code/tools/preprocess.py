@@ -5,6 +5,8 @@ from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 
 
+
+
 class Preprocess:
     def __init__(self):
         # Inicializar cualquier recurso global aquí, como el modelo spacy
