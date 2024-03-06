@@ -1,5 +1,5 @@
-from tools.process_dnf import query_to_dnf
-from tools.process import corpus
+from process_dnf import query_to_dnf
+from process import corpus
 
 corpu = corpus('',10)
 query = query_to_dnf('paper or number and value')
