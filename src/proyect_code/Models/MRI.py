@@ -4,6 +4,7 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import normalize
 from sympy import sympify, to_dnf, symbols, And
+from sympy import sympify, to_dnf, symbols, And
 import sympy
 
 
@@ -17,19 +18,26 @@ class boolean_MRI:
     """
 
     def __init__(self, tokenized_docs, query):
+        """
+        Inicializa la instancia de la clase boolean_MRI.
+
+        Parámetros:
+        - tokenized_docs: Lista de documentos tokenizados.
+        - query: Consulta de búsqueda.
+        """
         self.tokenized_docs = tokenized_docs
         self.weights = None
         self.tokenized_docs = tokenized_docs
         self.query = query
         self.terms_of_interest = self.process_query(query)
         # self.vectorizer_Tfidf = TfidfVectorizer(vocabulary=self.terms_of_interest)
-        self.vectorizer = CountVectorizer(vocabulary=set(self.terms_of_interest))
+        self.vectorizer = CountVectorizer(vocabulary=self.terms_of_interest)
         self.transformer = TfidfTransformer(smooth_idf=True, use_idf=True)
         self.query_dnf = self.query_to_dnf(self.query)
         self.terms_of_interest_TfidfVectorizer = self.get_literals_from_dnf(
             self.query_dnf
         )
-        self.vectorizer_Tfidf = TfidfVectorizer(vocabulary=set(self.terms_of_interest))
+        self.vectorizer_Tfidf = TfidfVectorizer(vocabulary=self.terms_of_interest)
         self.process_TfidfVectorizer()  # Asegura que self.weights se calcule primero
 
         self.tf = None
@@ -46,6 +54,13 @@ class boolean_MRI:
 
         Retorna:
         - Lista de términos de interés.
+        Procesa la consulta para obtener los términos de interés, simplemente separando por espacios.
+
+        Parámetros:
+        - query: Consulta de búsqueda.
+
+        Retorna:
+        - Lista de términos de interés.
         """
         # Separar la consulta en términos usando espacios y eliminar espacios en blanco extra
         terms = query.split()
@@ -53,6 +68,13 @@ class boolean_MRI:
 
     def process_query(self, query):
         """
+        Procesa la consulta para obtener los términos de interés, eliminando operadores lógicos y caracteres especiales.
+
+        Parámetros:
+        - query: Consulta de búsqueda.
+
+        Retorna:
+        - Lista de términos de interés.
         Procesa la consulta para obtener los términos de interés, eliminando operadores lógicos y caracteres especiales.
 
         Parámetros:
@@ -106,6 +128,16 @@ class boolean_MRI:
         Retorna:
         - Valor de similitud.
         """
+        """
+        Calcula la similitud booleana estándar usando la operación OR.
+
+        Parámetros:
+        - document_weights: Pesos del documento.
+        - p: Exponente para el cálculo de la similitud.
+
+        Retorna:
+        - Valor de similitud.
+        """
         return np.power(
             np.sum(np.power(document_weights, p)) / len(document_weights), 1 / p
         )
@@ -133,6 +165,12 @@ class boolean_MRI:
         Retorna:
         - Lista de relevancias.
         """
+        """
+        Calcula la relevancia de todos los documentos usando la operación OR.
+
+        Retorna:
+        - Lista de relevancias.
+        """
         relevances = [
             self.sim_or(self.get_document_weights(i), p)
             for i in range(len(self.tokenized_docs))
@@ -140,6 +178,12 @@ class boolean_MRI:
         return relevances
 
     def all_documents_relevance_and(self, p=2):
+        """
+        Calcula la relevancia de todos los documentos usando la operación AND.
+
+        Retorna:
+        - Lista de relevancias.
+        """
         """
         Calcula la relevancia de todos los documentos usando la operación AND.
 
@@ -168,6 +212,15 @@ class boolean_MRI:
         Retorna:
         - Pesos TF-IDF del documento.
         """
+        """
+        Obtiene los pesos TF-IDF para un documento específico.
+
+        Parámetros:
+        - doc_index: Índice del documento.
+
+        Retorna:
+        - Pesos TF-IDF del documento.
+        """
         if self.weights is not None:
             return self.weights[doc_index]
         else:
@@ -186,6 +239,15 @@ class boolean_MRI:
         self.feature_names = self.vectorizer_Tfidf.get_feature_names_out()
 
     def query_to_dnf(self, query):
+        """
+        Convierte la consulta en una forma normal disyuntiva (DNF).
+
+        Parámetros:
+        - query: Consulta de búsqueda.
+
+        Retorna:
+        - Consulta en DNF.
+        """
         """
         Convierte la consulta en una forma normal disyuntiva (DNF).
 
@@ -230,14 +292,26 @@ class boolean_MRI:
 
         try:
             query_expr = sympify(newFND, evaluate=False)
+            query_expr = sympify(newFND, evaluate=False)
         except:
             simb = symbols(newFND)
             query_expr = And(*simb)
             query_expr = sympify(query_expr, evaluate=False)
         query_dnf = to_dnf(query_expr, simplify=True, force=True)
+            query_expr = sympify(query_expr, evaluate=False)
+        query_dnf = to_dnf(query_expr, simplify=True, force=True)
         return query_dnf
 
     def get_literals_from_dnf(self, dnf):
+        """
+        Obtiene los literales de la consulta en DNF.
+
+        Parámetros:
+        - dnf: Consulta en DNF.
+
+        Retorna:
+        - Lista de literales.
+        """
         """
         Obtiene los literales de la consulta en DNF.
 
@@ -266,6 +340,12 @@ class boolean_MRI:
         Retorna:
         - Lista de índices de documentos que coinciden con la consulta.
         """
+        """
+        Calcula la similitud booleana estándar entre la consulta y los documentos.
+
+        Retorna:
+        - Lista de índices de documentos que coinciden con la consulta.
+        """
         # Convert tokenized_docs to a list of sets for efficient operations
         doc_term_sets = self.tokenized_docs
         query_dnf = self.query_dnf
@@ -276,6 +356,7 @@ class boolean_MRI:
             for q_ce in self.query_dnf.args:
                 # Check if the query component is a subset of the document terms
                 try:
+                    for elem in str(q_ce).split("&"):
                     for elem in str(q_ce).split("&"):
                         if elem not in doc_terms:
                             # If any component of the query matches, the document is a match
@@ -293,8 +374,13 @@ class boolean_MRI:
 
         return matching_documents
 
+
     def similarity_boolean_extended(self):
         """
+        Calcula la similitud booleana extendida entre la consulta y los documentos, basada en los pesos TF-IDF.
+
+        Retorna:
+        - Diccionario con índices de documentos y sus scores de similitud.
         Calcula la similitud booleana extendida entre la consulta y los documentos, basada en los pesos TF-IDF.
 
         Retorna:
@@ -362,6 +448,13 @@ class boolean_MRI:
 
     def get_document_weights_TfidfVectorizer(self, doc_index):
         """
+        Obtiene los pesos TF-IDF para un documento específico usando TfidfVectorizer.
+
+        Parámetros:
+        - doc_index: Índice del documento.
+
+        Retorna:
+        - Pesos TF-IDF del documento.
         Obtiene los pesos TF-IDF para un documento específico usando TfidfVectorizer.
 
         Parámetros:

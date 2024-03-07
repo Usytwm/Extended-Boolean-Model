@@ -6,7 +6,12 @@ import { Card, Empty, Select, Spin } from "antd";
 import ListComponent from "./listComponent";
 import styles from "./styles.module.css";
 import { IQuery } from "../Interfaces/query.interface";
-import { getAllQueries, getMetrics, searchQuery } from "../api/ApiService";
+import {
+  getAllQueries,
+  getMetrics,
+  searchQuery,
+  searchStandarQuery,
+} from "../api/ApiService";
 import { IDocument } from "../Interfaces/document.interface";
 
 const HomeComponent = () => {
@@ -17,6 +22,8 @@ const HomeComponent = () => {
   const [dataQuery, setdataQuery] = useState<IQuery[]>([]);
 
   const [document, setDocument] = useState<IDocument[]>([]);
+
+  const [documentstarndar, setDocumentstarndar] = useState<IDocument[]>([]);
 
   const [metrics, setMetrics] = useState<IMetrics>();
 
@@ -29,6 +36,9 @@ const HomeComponent = () => {
       try {
         const documents = await searchQuery(selectedQuery);
         setDocument(documents);
+
+        const documentsstandar = await searchStandarQuery(selectedQuery);
+        setDocumentstarndar(documentsstandar);
 
         const metricas = await getMetrics();
         setMetrics(metricas);
@@ -92,11 +102,11 @@ const HomeComponent = () => {
             onChange={onQueryChange}
             style={{ width: 500, height: 50 }}
             options={dataQuery.map((dato) => ({
-              value: dato?.name,
+              value: dato?.id?.toString() + "," + dato?.name,
               label: dato?.name,
             }))}
           />
-
+          <h2>Extended Boolean Model</h2>
           {isLoadingdocs ? (
             <Spin
               style={{
@@ -108,6 +118,24 @@ const HomeComponent = () => {
           ) : document.length > 0 ? (
             <Card style={{ width: "auto" }}>
               <ListComponent documents={document} />
+            </Card>
+          ) : (
+            <div className={`${styles.cardContentCentered}`}>
+              <Empty description="No se encontraron documentos" />
+            </div>
+          )}
+          <h2>Standar Boolean Model</h2>
+          {isLoadingdocs ? (
+            <Spin
+              style={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+              }}
+            />
+          ) : documentstarndar.length > 0 ? (
+            <Card style={{ width: "auto" }}>
+              <ListComponent documents={documentstarndar} />
             </Card>
           ) : (
             <div className={`${styles.cardContentCentered}`}>

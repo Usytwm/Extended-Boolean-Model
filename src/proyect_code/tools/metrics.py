@@ -1,6 +1,37 @@
 from sklearn.metrics import confusion_matrix, precision_score, recall_score, f1_score
 
 
+class MetricsModel:
+    def __init__(self, precision, recall, f1, r_precision, fallout):
+        """
+        Inicializa las métricas del modelo.
+
+        Parámetros:
+        - precision: La precisión del modelo.
+        - recall: La recuperación o sensibilidad del modelo.
+        - f1: La puntuación F1 del modelo.
+        - r_precision: La precisión R del modelo.
+        - fallout: La caída o tasa de falsos positivos del modelo.
+        """
+        self.precision = precision
+        self.recall = recall
+        self.f1 = f1
+        self.r_precision = r_precision
+        self.fallout = fallout
+
+    def obtener_metricas(self):
+        """
+        Devuelve las métricas del modelo como un diccionario.
+        """
+        return {
+            "precision": self.precision,
+            "recall": self.recall,
+            "f1": self.f1,
+            "r_precision": self.r_precision,
+            "fallout": self.fallout,
+        }
+
+
 def precision(recovered_documents, relevant_documents):
     """
     Calcula la precisión de un conjunto de documentos recuperados frente a un conjunto de documentos relevantes.
@@ -109,12 +140,14 @@ def calculate_metrics(recovered_documents, relevant_documents):
 
     # True positives: Recovered documents that are relevant
     true_positives = len(relevant_set.intersection(recovered_set))
-    print(" True positives : ",true_positives)
+    print(" True positives : ", true_positives)
     # False positives: Recovered documents that are not relevant
     false_positives = len(recovered_set - relevant_set)
     print("false positives: ", false_positives)
+    print("false positives: ", false_positives)
     # False negatives: Relevant documents that were not recovered
     false_negatives = len(relevant_set - recovered_set)
+    print("false negatives: ", false_negatives)
     print("false negatives: ", false_negatives)
     # Precision
     precision = (
@@ -153,10 +186,10 @@ def calculate_metrics(recovered_documents, relevant_documents):
         else 0
     )
 
-    return {
-        "precision": precision,
-        "recall": recall,
-        "f1": f1,
-        "r_precision": r_precision,
-        "fallout": fallout,
-    }
+    return MetricsModel(
+        precision=precision,
+        recall=recall,
+        f1=f1,
+        r_precision=r_precision,
+        fallout=fallout,
+    )

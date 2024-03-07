@@ -25,6 +25,20 @@ export const searchQuery = async (query: string): Promise<IDocument[]> => {
   }
 };
 
+export const searchStandarQuery = async (
+  query: string
+): Promise<IDocument[]> => {
+  try {
+    const response = await axios.get<IDocument[]>(
+      `${baseURL}/searchstandar/${query}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error al obtener datos:", error);
+    throw error;
+  }
+};
+
 export const getMetrics = async (): Promise<IMetrics> => {
   try {
     const response = await axios.get<IMetrics>(`${baseURL}/metrics`);

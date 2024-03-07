@@ -13,10 +13,10 @@ echo ----------Completado----------
 
 @echo off
 echo [Ejecutando Server...]
-start cmd /k "python project_code\app.py & echo ----------Completado---------- & pause"
+start cmd /k "python proyect_code\main.py & echo ----------Completado---------- & pause"
 
 echo [Ejecutando script de GUI...]
-start cmd /k "cd gui/ReadingRecommender && ng serve -o & echo ---- & pause"
+start cmd /k "cd gui/clientapp && npm start & echo ---- & pause"
 
 
 echo [Regresando al directorio raiz...]
