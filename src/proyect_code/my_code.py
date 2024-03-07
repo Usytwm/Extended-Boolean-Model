@@ -93,7 +93,7 @@ def recovered_documents_sri(query):
         documents = [doc.text for doc in cranfield_data.dataset.docs_iter()]
         preprocess = Preprocess()
         tokenized_docs, dictionary, vocabulary, vector_repr, pos_tags = (
-            preprocess.preprocess_documents(documents)
+            preprocess.preprocess_documents(documents, False)
         )
         with open("src/proyect_code/Data/preprocessed_docs.json", "w") as f:
             json.dump(tokenized_docs, f)
@@ -101,7 +101,6 @@ def recovered_documents_sri(query):
         dictionary.save("src/proyect_code/Data/dictionary.gensim")
 
     pre_query = preprocess_query(query)
-    print(pre_query)
     mri = boolean_MRI(tokenized_docs, pre_query)
     # boolean_extended_model = ExtendedBooleanModel(tokenized_docs, query)
     mri.process_TfidfVectorizer()

@@ -22,6 +22,7 @@ def search_query(query):
     query = partes[1]
     documents = cd.recovered_documents_sri(query)
     result = list(documents.keys())
+    result = [i + 1 for i in result]
     all_documents = cd.cranfield_data.documents
     result1 = [all_documents[key] for key in result[:10]]
     result_values = [doc["id"] for doc in result1]
