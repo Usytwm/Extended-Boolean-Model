@@ -289,9 +289,9 @@ class boolean_MRI:
                     except:
                         if str(q_ce) in doc_terms:
                             all_match = True
-                if all_match:
-                    matching_documents.append(doc_i)
-                    continue
+                    if all_match:
+                        matching_documents.append(doc_i)
+                        continue
 
             # If the document matches all components of the query, add it to the list
 

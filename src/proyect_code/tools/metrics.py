@@ -108,7 +108,7 @@ def calculate_metrics(recovered_documents, relevant_documents):
     relevant_set = set(relevant_documents)
 
     # True positives: Recovered documents that are relevant
-    true_positives = len(recovered_set.intersection(relevant_set))
+    true_positives = len(relevant_set.intersection(recovered_set))
     print(" True positives : ",true_positives)
     # False positives: Recovered documents that are not relevant
     false_positives = len(recovered_set - relevant_set)

@@ -64,13 +64,19 @@ def recovered_documents_sri(query):
             # Reconstruir los documentos a partir de las listas de palabras
         dictionary = Dictionary.load("src/proyect_code/Data/dictionary.gensim")
     except FileNotFoundError:
-        elegidos = [int(item[1]) for item in dataset.qrels_iter() if (int(item[0]) == int(54))]
+        #elegidos = [int(item[1]) for item in dataset.qrels_iter() if (int(item[0]) == int(54))]
         elegidos1 = sorted([184, 29, 31, 12, 51, 102, 13, 14, 15, 57, 378, 859, 185, 30, 37, 52, 142, 195, 875, 56, 66, 95, 462, 497, 858, 876, 879, 880, 486])
-        print("original", elegidos1)
-        print("Code", sorted(elegidos)) 
-        documents = [doc.text for doc in dataset.docs_iter() if (int(doc[0])) in elegidos ]
-        print("elegidos: ",len(elegidos))
-        print("guardados ", len(documents))
+        #print("original", elegidos1)
+        #print("Code", sorted(elegidos)) 
+        #if (int(doc[0])) in elegidos
+        documents = [(int(doc[0]), doc.text) for doc in dataset.docs_iter() ]
+        for doc in documents:
+            print(doc[0])
+        #print(documents)
+        documents = sorted(documents, key=lambda x: x[0])
+        documents = [doc[1] for doc in documents ]
+        #print("elegidos: ",len(elegidos))
+        #print("guardados ", len(documents))
         preprocess = Preprocess()
         tokenized_docs, dictionary, vocabulary, vector_repr, pos_tags = (
             preprocess.preprocess_documents(documents,False)
@@ -89,10 +95,11 @@ def recovered_documents_sri(query):
 
 
 rd = recovered_documents_sri(terminos_consulta)
+#rd = [id + 1 for id in rd]
 print("rd")
-print("rd",len(rd))
+print("rd",rd)
 rr = relevant_documents(54)
-print("rr", len(rr))
+print("rr", rr)
 print(calculate_metrics(rd,rr))
 #print(precision(ra,rr))
 
