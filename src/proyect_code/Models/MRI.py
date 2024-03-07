@@ -296,8 +296,8 @@ class boolean_MRI:
         except:
             simb = symbols(newFND)
             query_expr = And(*simb)
-            query_expr = sympify(query_expr, evaluate=False)
-        query_dnf = to_dnf(query_expr, simplify=True, force=True)
+            # query_expr = sympify(query_expr, evaluate=False)
+            # query_dnf = to_dnf(query_expr, simplify=True, force=True)
             query_expr = sympify(query_expr, evaluate=False)
         query_dnf = to_dnf(query_expr, simplify=True, force=True)
         return query_dnf
@@ -357,7 +357,6 @@ class boolean_MRI:
                 # Check if the query component is a subset of the document terms
                 try:
                     for elem in str(q_ce).split("&"):
-                    for elem in str(q_ce).split("&"):
                         if elem not in doc_terms:
                             # If any component of the query matches, the document is a match
                             break
@@ -373,7 +372,6 @@ class boolean_MRI:
             # If the document matches all components of the query, add it to the list
 
         return matching_documents
-
 
     def similarity_boolean_extended(self):
         """
