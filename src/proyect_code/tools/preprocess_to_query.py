@@ -40,9 +40,8 @@ import ir_datasets
 dataset = ir_datasets.load("cranfield")
 i= 1
 for query in dataset.queries_iter():
-    print("i ",i ," ",query[1],"len ",query[0])
+    print("id: " , query[0] ," text ",query[1])
     print()
-    print(" ", len(preprocess_query(query[1])))
     i+=1
-    if i == 5:
+    if i == 30:
         break

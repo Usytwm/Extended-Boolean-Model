@@ -84,14 +84,38 @@ class Preprocess:
         plt.axis("off")
         plt.show()
 
-    def preprocess_documents(self, documents):
-        tokenized_docs = self.tokenization_nltk(documents)
-        tokenized_docs = self.remove_noise_nltk(tokenized_docs)
-        tokenized_docs = self.remove_stopwords(tokenized_docs)
-        tokenized_docs = self.morphological_reduction_nltk(tokenized_docs)
-        tokenized_docs, dictionary = self.filter_tokens_by_occurrence(tokenized_docs)
-        vocabulary = self.build_vocabulary(dictionary)
-        vector_repr = self.vector_representation(tokenized_docs, dictionary)
-        pos_tags = self.pos_tagger_nltk(tokenized_docs)
-        tokenized_docs = [" ".join(doc) for doc in tokenized_docs]
-        return tokenized_docs, dictionary, vocabulary, vector_repr, pos_tags
+    def preprocess_documents(self, documents, query):
+        if query == False:
+            tokenized_docs = self.tokenization_nltk(documents)
+            tokenized_docs = self.remove_noise_nltk(tokenized_docs)
+        
+            tokenized_docs = self.remove_stopwords(tokenized_docs)
+            tokenized_docs = self.morphological_reduction_nltk(tokenized_docs)
+            tokenized_docs, dictionary = self.filter_tokens_by_occurrence(tokenized_docs)
+            vocabulary = self.build_vocabulary(dictionary)
+            vector_repr = self.vector_representation(tokenized_docs, dictionary)
+            pos_tags = self.pos_tagger_nltk(tokenized_docs)
+            tokenized_docs = [" ".join(doc) for doc in tokenized_docs]
+            return tokenized_docs, dictionary, vocabulary, vector_repr, pos_tags
+        
+        #Cambio 
+
+        else:
+            tokenized_docs = documents.split()
+ #           print("Remove nosise", tokenized_docs)
+            
+            tokenized_docs = [word.lower() for word in tokenized_docs if word.isalpha()]
+            
+            tokenized_docs = [word for word in tokenized_docs if word not in self.stop_words]
+            
+            lemmatizer = nltk.stem.WordNetLemmatizer()
+            
+            tokenized_docs = [lemmatizer.lemmatize(word) for word in tokenized_docs]
+
+            tokenized_docs = list(set(tokenized_docs)) 
+
+            tokenized_docs = " ".join(tokenized_docs)
+            
+
+            return tokenized_docs
+        
