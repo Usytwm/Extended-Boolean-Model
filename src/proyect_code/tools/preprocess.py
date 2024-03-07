@@ -97,6 +97,9 @@ class Preprocess:
             pos_tags = self.pos_tagger_nltk(tokenized_docs)
             tokenized_docs = [" ".join(doc) for doc in tokenized_docs]
             return tokenized_docs, dictionary, vocabulary, vector_repr, pos_tags
+        
+        #Cambio 
+
         else:
             tokenized_docs = documents.split()
  #           print("Remove nosise", tokenized_docs)
@@ -108,7 +111,9 @@ class Preprocess:
             lemmatizer = nltk.stem.WordNetLemmatizer()
             
             tokenized_docs = [lemmatizer.lemmatize(word) for word in tokenized_docs]
-            
+
+            tokenized_docs = list(set(tokenized_docs)) 
+
             tokenized_docs = " ".join(tokenized_docs)
             
 
