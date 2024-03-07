@@ -42,7 +42,7 @@ def relevant_documents(query_id: str):
 #
     #
     #print(X)
-    return [item[1] for item in dataset.qrels_iter() if (int(item[0]) == int(query_id))]
+    return [int(item[1]) for item in dataset.qrels_iter() if (int(item[0]) == int(query_id))]
 
 
 def recovered_documents_sri(query):
@@ -91,7 +91,7 @@ def recovered_documents_sri(query):
     print(pre_query)
     mri = boolean_MRI(tokenized_docs, pre_query)
     mri.process_TfidfVectorizer()
-    return mri.similarity_boolean_standart()
+    return mri.similarity_boolean_extended()
 
 
 rd = recovered_documents_sri(terminos_consulta)
