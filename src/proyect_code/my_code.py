@@ -11,7 +11,7 @@ from Models.MRI import boolean_MRI
 import time
 
 dataset = ir_datasets.load("cranfield")
-terminos_consulta = "text  what application has the linear theory design of curved wings"
+terminos_consulta = "what is the effect of cross sectional shape on the flow over simple delta wings with sharp leading edges"
 
 dictionary = {}
 
@@ -42,7 +42,7 @@ def relevant_documents(query_id: str):
 #
     #
     #print(X)
-    return [item[1] for item in dataset.qrels_iter() if (int(item[0]) == int(query_id) and item[2] != -1)]
+    return [item[1] for item in dataset.qrels_iter() if (int(item[0]) == int(query_id))]
 
 
 def recovered_documents_sri(query):
@@ -64,29 +64,35 @@ def recovered_documents_sri(query):
             # Reconstruir los documentos a partir de las listas de palabras
         dictionary = Dictionary.load("src/proyect_code/Data/dictionary.gensim")
     except FileNotFoundError:
-
-        documents = [doc.text for doc in dataset.docs_iter()]
+        elegidos = [int(item[1]) for item in dataset.qrels_iter() if (int(item[0]) == int(54))]
+        elegidos1 = sorted([184, 29, 31, 12, 51, 102, 13, 14, 15, 57, 378, 859, 185, 30, 37, 52, 142, 195, 875, 56, 66, 95, 462, 497, 858, 876, 879, 880, 486])
+        print("original", elegidos1)
+        print("Code", sorted(elegidos)) 
+        documents = [doc.text for doc in dataset.docs_iter() if (int(doc[0])) in elegidos ]
+        print("elegidos: ",len(elegidos))
+        print("guardados ", len(documents))
         preprocess = Preprocess()
         tokenized_docs, dictionary, vocabulary, vector_repr, pos_tags = (
-            preprocess.preprocess_documents(documents)
+            preprocess.preprocess_documents(documents,False)
         )
         with open("src/proyect_code/Data/preprocessed_docs.json", "w") as f:
             json.dump(tokenized_docs, f)
 
         dictionary.save("src/proyect_code/Data/dictionary.gensim")
 
-    
-    pre_query = preprocess_documents(query, True)
+    preprocess = Preprocess()
+    pre_query = preprocess.preprocess_documents(query,True)
     print(pre_query)
     mri = boolean_MRI(tokenized_docs, pre_query)
     mri.process_TfidfVectorizer()
-    return mri.all_documents_relevance_and()
+    return mri.similarity_boolean_standart()
 
 
 rd = recovered_documents_sri(terminos_consulta)
 print("rd")
-rr = relevant_documents(53)
-
+print("rd",len(rd))
+rr = relevant_documents(54)
+print("rr", len(rr))
 print(calculate_metrics(rd,rr))
 #print(precision(ra,rr))
 
