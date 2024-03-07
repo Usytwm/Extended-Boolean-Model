@@ -43,8 +43,8 @@ class DatasetData:
         return query_responses
 
 
-# # Uso
-# cranfield_data = DatasetData()
+# Uso
+cranfield_data = DatasetData()
 
 # terminos_consulta = "experimental and (equation or culito)"
 # dictionary = {}
